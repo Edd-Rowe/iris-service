@@ -1,0 +1,5 @@
+.spyproject
+*.pyc
+*.ini
+*.DS_STORE
+DS_STORE
