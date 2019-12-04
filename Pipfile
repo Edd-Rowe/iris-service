@@ -10,6 +10,7 @@ pandas = "*"
 flask = "*"
 spyder-kernels = "==0.*"
 seaborn = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.7"

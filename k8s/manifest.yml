@@ -1,0 +1,72 @@
+# Example config file for k8s, used when deploying new docker images to our k8s clusters
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: iris-service
+    owner: edd-rowe
+  name: iris-service
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: iris-service
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: iris-service
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: iris-service
+        image: eu.gcr.io/project-name/iris-service:0
+        imagePullPolicy: Always
+        name: iris-service
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 2
+            memory: "4Gi"
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      imagePullSecrets: 
+      - name: gcp-administration-key
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: scheduler-name
+      securityContext: {}
+      terminationGracePeriodSeconds: 10
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: iris-service
+    owner: edd-rowe
+  name: iris-service
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 5000
+  selector:
+    app: iris-service
+  sessionAffinity: None
+  type: NodePort
+---
