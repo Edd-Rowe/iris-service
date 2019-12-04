@@ -36,7 +36,7 @@ In additional, we have access to species labels for our entire dataset,
 so perhaps we should build a supervised ML model.
 
 Inspecting the individual pairplots suggests the decision boundaries are all
-linear, so a neural net is overkill. The distributions of the features for
+linear, so a deep network is overkill. The distributions of the features for
 each class are not quite normal, and the variances for the different
 distributions are not equal.
 
