@@ -37,11 +37,11 @@ so perhaps we should build a supervised ML model.
 
 Inspecting the individual pairplots suggests the decision boundaries are all
 linear, so a neural net is overkill. The distributions of the features for
-each class look roughly normal, so an implementaion of linear discriminant
-analysis seems appropriate here.
+each class are not quite normal, and the variances for the different
+distributions are not equal.
 
-If we were to pull out all the stops, we should also normalise the data such
-that each feature has mean zero and variance one, but given that we're going
-to implement that scratch we'll skip this step and live with the consequences
+Thus, although the classic method to build a classification model on this
+dataset is linear discriminant analysis, perhaps the more robust logistic
+regression algorithm is appropriate instead.
 
 """
