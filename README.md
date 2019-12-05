@@ -111,6 +111,8 @@ This code is certainly production capable, however some shortcuts have been take
 
 - I perormed some quick and dirty hyperparameter tuning to find workable values for the learning rate and the number of iterations by manually running my script. I only split my training data into train/test sets, not train/dev/test.
 
+- The service run on the flask default development server. This is not intended to be used for production, just local testing like described in `Quickstart`. Usually, we would use a production WSGI server like Waitress for anything in production.
+
 - My `packages` folder has no packages, and in fact only has one module (and itself has no `__init__.py`)
 
 - The unit tests for the code do not cover close to all of the code, they just cover a few illustrative examples.
