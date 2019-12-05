@@ -9,33 +9,54 @@ It also contains the exploratory analysis and plotting tools used during the dev
 Clone the repo, open a terminal window and navigate to the root folder.
 This project uses [Pipenv](https://github.com/pypa/pipenv) to manage python dependencies.
 
-If you do not have pipenv installed, run 
+Install pipenv if you haven't already:
 
 ```$ pip install pipenv``` 
 
-to install it
-
-If you do not have pip installed, i think you're probably lost.
-
-Run 
+Install all project dependencies:
 
 ```$ pipenv install``` 
 
-in the root directory of the repo to install all dependencies
-
-Run 
+Run the flask app containing the service locally on localhost and the default port:
 
 ```$ python service.py``` 
 
-to run the flask app containing the service locally. It will run on localhost and listen on port 8080 by default.
-
-Alternatively, run
+Alternatively, pick a different IP and port:
 
 ```$ export FLASK_APP=service.py```
 
 
 ```$ flask run -h 127.0.0.01 -p 1234``` 
 
-to run on an alternative IP and port.
+Head to http://127.0.0.1:8080/api/predict?sepal_length=5&sepal_width=0.3&petal_length=5&petal_width=3.5 in your browser or your favorite API client to see an example prediction.
 
-Head to [http://127.0.0.1:8080/api/predict] in your browser or your favorite API client to start making predictions.
+Edit the query string in your browser or API client to predict the species of your own personal iris.
+
+# Output
+
+I took some liberties with the output specification because it wasn't fully specified for the case where the model outputs a score for all 3 classes.
+
+The service returns a JSON object with 2 keys: prediction and predictions. The value of prediction is a dictionary with the top predicted species and the estimated probability that the observation belongs to that species. The value of predictions is a list containing 3 dictionaries - one for each species.
+
+```json
+{
+    "prediction": {
+        "class": "virginica",
+        "score": 0.9999794402832914
+    },
+    "predictions": [
+        {
+            "class": "setosa",
+            "score": 5.92233161988833e-10
+        },
+        {
+            "class": "versicolor",
+            "score": 0.000020559124475387382
+        },
+        {
+            "class": "virginica",
+            "score": 0.9999794402832914
+        }
+    ]
+}
+```
