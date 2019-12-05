@@ -1,6 +1,8 @@
 # iris-service
 
-This repo contains a REST micro-service that predicts the species of an iris given 4 observed lengths.
+This repo contains a REST micro-service that predicts the species of an iris given the lengths and widths of its petals and sepals.
+
+Prediction is carried out using a logistic regression model implemented 'from scratch' (not using sklearn).
 
 It also contains the exploratory analysis and plotting tools used during the development or the service (these would usually not be checked in, but they are included here for illustration).
 
@@ -36,7 +38,7 @@ Edit the query string in your browser or API client to predict the species of yo
 
 I took some liberties with the output specification because it wasn't fully specified for the case where the model outputs a score for all 3 classes.
 
-The service returns a JSON object with 2 keys: prediction and predictions. The value of prediction is a dictionary with the top predicted species and the estimated probability that the observation belongs to that species. The value of predictions is a list containing 3 dictionaries - one for each species.
+The service returns a JSON object with 2 keys: prediction and predictions. `prediction` contains the most likely class and the confidence score for the class (which can be interpreted as the probability that your iris if of this species). `predictions` contains all 3 classes with their confidence scores, which sum to one.
 
 ```json
 {
@@ -70,7 +72,25 @@ This workflow builds a docker image with python 3.7 & installs the dependencies 
 
 None of this actually happens, because I changed a bunch of key variables to dummy variables. I didn't fancy actually deploying this on my company's clusters, and I don't have a personal GCP account. As a result, the docker image, circle integration and kubernetes config have not been tested.
 
+# Model
+
+`explore_data.py` contains some explanatory analysis of the dataset, including this scatter plot matrix of the 4 features with color coded species labels. As discussed in that script, the linear decision boundaries and not-quite-normal distributions of the features suggest logistic regression is a good model to fit the data.
+
+![scatter plot matrix of iris dataset](https://github.com/Edd-Rowe/iris-service/blob/master/images/scatter_matrix.png)
+
+`packages/logit.py` implements logistic regression 'from scratch' - i.e. using numpy and pandas but not using sklearn.
+
+The logistic regression cost function (categorical cross entropy) is minimised using gradient descent on a matrix of weights and a scalar bias term.
+
+The learning curve shows that test set error is minimised after ~17,000 iterations using a learning rate of 0.001.
+
+![learning curve of gradient descent](https://github.com/Edd-Rowe/iris-service/blob/master/images/learning_curve.png)
+
+
 # Shortcuts
 
-This code is certainly production capable, however some shortcuts have been taken in the interests of time (logistic regression from scratch isn't quick!) that I would not normally make with production services.
+This code is certainly production capable, however some shortcuts have been taken in the interests of time that I would not normally make with production services (logistic regression from scratch took a couple hours!)
 
+- The logistic regression model that generates the predictions is trained at runtime (when the IrisModel class is instantiated by service.py). Usually, I would train my model and tune hyperparameters in a seperate module and save the weights to be loaded later.
+
+- I perormed some quick and dirty hyperparemeter tuning to find workable values for the learning rate and the number of iterations by manually running my script. I only split my training data into train/test sets, not train/dev/test.
