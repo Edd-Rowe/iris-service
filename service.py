@@ -32,7 +32,6 @@ logging.basicConfig(
 
 app = Flask(__name__)
 
-
 class IrisModel:
     def __init__(self, model_id):
         # In the interest of time, we cheat a little bit and train the
