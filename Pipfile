@@ -5,6 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 pandas = "*"
+pytest = "*"
+requests = "*"
 
 [packages]
 flask = "*"

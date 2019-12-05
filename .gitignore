@@ -3,3 +3,4 @@
 *.ini
 *.DS_STORE
 DS_STORE
+.pytest_cache

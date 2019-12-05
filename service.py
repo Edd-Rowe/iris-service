@@ -75,25 +75,38 @@ def health():
 @app.route(f"/api/predict", methods=["GET"])
 def predict():
     app.logger.info(f"Prediction endpoint called")
-
-    input_array = np.array([[
-        float(request.args.get('sepal_length')),
-        float(request.args.get('sepal_width')),
-        float(request.args.get('petal_length')),
-        float(request.args.get('petal_width'))
-    ]]).T
-
+    try:
+        input_array = np.array([[
+            float(request.args.get('sepal_length')),
+            float(request.args.get('sepal_width')),
+            float(request.args.get('petal_length')),
+            float(request.args.get('petal_width'))
+        ]]).T
+    except TypeError:
+        return """Invalid input"""
     app.logger.info(f"input array: {input_array}")
 
     predictions = MODEL.predict(
         input_array
     )
+    # Find class with the greatest score
+    scores = [
+        predictions[0].get('score'),
+        predictions[1].get('score'),
+        predictions[2].get('score')
+    ]
+    max_index = scores.index(max(scores))
+    prediction = predictions[max_index]
 
-    app.logger.info(f"predictions: {predictions}")
+    app.logger.info(f"prediction: {prediction}, predictions: {predictions}")
 
-    response = jsonify({"predictions": predictions})
+    response = jsonify({"prediction": prediction, "predictions": predictions})
     return response
 
 
-if __name__ == "__main__":
+def run_app():
     app.run(host="127.0.0.1", port=8080, threaded=True)
+
+
+if __name__ == "__main__":
+    run_app()
