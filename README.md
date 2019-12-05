@@ -38,7 +38,7 @@ Edit the query string in your browser or API client to predict the species of yo
 
 I took some liberties with the output specification because it wasn't fully specified for the case where the model outputs a score for all 3 classes.
 
-The service returns a JSON object with 2 keys: prediction and predictions. `prediction` contains the most likely class and the confidence score for the class (which can be interpreted as the probability that your iris if of this species). `predictions` contains all 3 classes with their confidence scores, which sum to one.
+The service returns a JSON object with 2 keys: `prediction` and `predictions`. `prediction` contains the most likely class and the confidence score for the class (which can be interpreted as the probability that your iris if of this species). `predictions` contains all 3 classes with their confidence scores, which sum to one.
 
 ```json
 {
@@ -86,6 +86,21 @@ The learning curve shows that test set error is minimised after ~17,000 iteratio
 
 ![learning curve of gradient descent](https://github.com/Edd-Rowe/iris-service/blob/master/images/learning_curve.png)
 
+# Tests
+
+There are very basic unit tests for `logit.py` and some tests for the service which require you to manually run the service first.
+
+If you do not have pytest installed, you can install it with:
+
+``` $ pipenv install pytest --dev```
+
+Alternatively, install all --dev packages:
+
+``` $ pipenv install -- dev```
+
+Run the service on localhost port 8080 as described in `Quickstart` above. Run the tests by running:
+
+``` $ python -m pytest```
 
 # Shortcuts
 
@@ -94,3 +109,13 @@ This code is certainly production capable, however some shortcuts have been take
 - The logistic regression model that generates the predictions is trained at runtime (when the IrisModel class is instantiated by service.py). Usually, I would train my model and tune hyperparameters in a seperate module and save the weights to be loaded later.
 
 - I perormed some quick and dirty hyperparemeter tuning to find workable values for the learning rate and the number of iterations by manually running my script. I only split my training data into train/test sets, not train/dev/test.
+
+- My `packages` folder has no packages, and in fact only has one module (and itself has no `__init__.py`)
+
+- The unit tests for the code do not cover close to all of the code, they just cover a few illustrative examples.
+
+- The tests for the service do not use Flask's built in testing mode - instead you must run the service somewhere else (in another terminal window or k8s) and then hit the endpoint using `requests`
+
+- There are no unit tests triggered by commits that excecute in circleci. Usually, I would write unit tests that trigger on commit to ANY branch (not just master), that excecute in circleci, in the same workflow as the docker build. 
+
+- In general, there is less error handling and fewer assertions in the code than I would normally write in production software.
