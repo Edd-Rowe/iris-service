@@ -8,7 +8,8 @@ It also contains the exploratory analysis and plotting tools used during the dev
 
 # Quickstart
 
-Clone the repo, open a terminal window and navigate to the root folder.
+Clone the repo, open a terminal window and navigate to the root directory.
+
 This project uses [Pipenv](https://github.com/pypa/pipenv) to manage python dependencies.
 
 Install pipenv if you haven't already:
@@ -108,7 +109,7 @@ This code is certainly production capable, however some shortcuts have been take
 
 - The logistic regression model that generates the predictions is trained at runtime (when the IrisModel class is instantiated by service.py). Usually, I would train my model and tune hyperparameters in a seperate module and save the weights to be loaded later.
 
-- I perormed some quick and dirty hyperparemeter tuning to find workable values for the learning rate and the number of iterations by manually running my script. I only split my training data into train/test sets, not train/dev/test.
+- I perormed some quick and dirty hyperparameter tuning to find workable values for the learning rate and the number of iterations by manually running my script. I only split my training data into train/test sets, not train/dev/test.
 
 - My `packages` folder has no packages, and in fact only has one module (and itself has no `__init__.py`)
 
