@@ -2,11 +2,11 @@
 This module contains an implementation of multi-class logistic regression
 'from scratch' (i.e. using numpy and pandas but not sklearn).
 
-Based on 'Logistic Regression with a Neural Network mindset' on Coursera,
-adapted for multi-class classification
+Based on 'Logistic Regression with a Neural Network mindset' in Andrew
+Ng's deep learning specialisation, adapted for multi-class classification
 
 Uses neural network principles to set up the logistic regression problem
-as a single layer neural network, and solves it using gradient descent
+as a single layer shallow network, then solves it using gradient descent
 
 """
 
@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 def get_train_test_sets():
     """
     returns the iris dataset, split into predictors, labels, train and test
-    sets
+    sets as 2D numpy arrays
 
     """
     iris_df = pd.read_csv('data/iris.csv')
@@ -44,20 +44,20 @@ def get_train_test_sets():
     return train_x, train_y, test_x, test_y
 
 
-def sigmoid(z):
+def softmax(z):
     """
-    Compute the sigmoid of z
+    Compute the softmax vector of each column of z
 
     Arguments:
     z -- A scalar or numpy array of any size.
 
     Return:
-    s -- sigmoid(z)
+    s -- softmax(z)
     """
-    return 1/(1+np.exp(-z))
+    return np.exp(z) / np.sum(np.exp(z), axis=0)
 
 
-def initialize_with_zeros(dim):
+def initialize_with_zeros(dim_0, dim_1):
     """
     Initialise a vector of zeros of shape (dim, 1) for w and b to 0.
 
@@ -65,10 +65,10 @@ def initialize_with_zeros(dim):
     dim -- size of the w vector we want
 
     Returns:
-    w -- initialized vector of shape (dim, 1)
+    w -- initialized vector of shape (dim_0, dim_1)
     b -- initialized scalar (0)
     """
-    w = np.zeros([dim, 1])
+    w = np.zeros([dim_0, dim_1])
     b = 0
     return w, b
 
@@ -96,7 +96,8 @@ def propagate(w, b, X, Y):
     m = X.shape[1]
 
     # Forward propagation
-    A = sigmoid(np.dot(w.T, X) + b)
+    A = softmax(np.dot(w.T, X) + b)
+    # The cost function for logistic regression - categorical cross entropy
     cost = -(1/m) * (Y*np.log(A) + (1-Y)*np.log(1-A)).sum()
     # Backward propagation
     dw = 1/m * np.dot(X, (A - Y).T)
@@ -126,20 +127,18 @@ def predict(w, b, X):
     """
     # Iniitalise Y_prediction vetor
     m = X.shape[1]
-    Y_prediction = np.zeros((3,m))
+    Y_prediction = np.zeros((3, m))
     w = w.reshape(X.shape[0], 3)
-    # Generate log
-    A = sigmoid(np.dot(w.T,X) + b)
+    A = softmax(np.dot(w.T, X) + b)
     for i in range(A.shape[1]):
         # Convert probabilities A[0,i] to actual predictions p[0,i]
-        ### START CODE HERE ### (≈ 4 lines of code)
-        if A[0,i] == A[:,i].max():
-            Y_prediction[:,i] = [1,0,0]
-        elif A[1,i] == A[:,i].max():
-            Y_prediction[:,i] = [0,1,0]
+        # Simply select the highest probability
+        if A[0, i] == A[:, i].max():
+            Y_prediction[:, i] = [1, 0, 0]
+        elif A[1, i] == A[:, i].max():
+            Y_prediction[:, i] = [0, 1, 0]
         else:
-            Y_prediction[:,i] = [0,0,1]
-        ### END CODE HERE ###
+            Y_prediction[:, i] = [0, 0, 1]
 
     assert(Y_prediction.shape == (3, m))
 
@@ -182,8 +181,8 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, test_x, test_y):
         b = b - learning_rate*db
         # Record the costs
         if i % 100 == 0:
-            Y_prediction_test = predict(w,b,test_x)
-            Y_prediction_train = predict(w,b,X)
+            Y_prediction_test = predict(w, b, test_x)
+            Y_prediction_train = predict(w, b, X)
             train_accs.append(
                 100 - np.mean(np.abs(Y_prediction_train - Y)) * 100
             )
@@ -200,8 +199,8 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, test_x, test_y):
     return params, grads, train_accs, test_accs
 
 
-def model(train_x, train_y, test_x, test_y, num_iterations = 2000,
-          learning_rate = 0.5):
+def model(train_x, train_y, test_x, test_y, num_iterations=2000,
+          learning_rate=0.5):
     """
     Builds the logistic regression model using gradient descent
 
@@ -230,7 +229,7 @@ def model(train_x, train_y, test_x, test_y, num_iterations = 2000,
     """
 
     # initialize parameters with zeros
-    w, b = initialize_with_zeros(train_x.shape[0])
+    w, b = initialize_with_zeros(train_x.shape[0], train_y.shape[0])
 
     # Optimise model using gradient descent
     parameters, grads, train_accs, test_accs = optimize(
@@ -242,15 +241,15 @@ def model(train_x, train_y, test_x, test_y, num_iterations = 2000,
     b = parameters["b"]
 
     # Predict test/train set examples
-    Y_prediction_test = predict(w,b,test_x)
-    Y_prediction_train = predict(w,b,train_x)
+    Y_prediction_test = predict(w, b, test_x)
+    Y_prediction_train = predict(w, b, train_x)
 
     MODEL = {
             "Y_prediction_test": Y_prediction_test,
-            "Y_prediction_train" : Y_prediction_train,
-            "w" : w,
-            "b" : b,
-            "learning_rate" : learning_rate,
+            "Y_prediction_train": Y_prediction_train,
+            "w": w,
+            "b": b,
+            "learning_rate": learning_rate,
             "num_iterations": num_iterations,
             "train_accs": train_accs,
             "test_accs": test_accs
@@ -260,11 +259,20 @@ def model(train_x, train_y, test_x, test_y, num_iterations = 2000,
 
 
 def plot_learning_curve(MODEL):
+    """
+    Plots the learning curve - the train set and test set error vs number of
+    iterations that was saved during MODEL training.
+
+    As a shortcut, this was used in development to quickly find some decent
+    values for the learning rate and number of iterations.
+
+    """
+
     train_accs = np.squeeze(MODEL['train_accs'])
     test_accs = np.squeeze(MODEL['test_accs'])
     fig, ax = plt.subplots()
-    ax.plot(100 - train_accs, label = 'Training set error')
-    ax.plot(100 - test_accs, label = 'Test set error')
+    ax.plot(100 - train_accs, label='Training set error')
+    ax.plot(100 - test_accs, label='Test set error')
     ax.set_ylabel('Prediction error (%)')
     plt.legend()
     ax.set_xlabel('Hundreds of iterations')
@@ -272,17 +280,24 @@ def plot_learning_curve(MODEL):
 
 
 def load_iris_and_return_model(num_iterations, learning_rate):
+    """
+    returns MODEL - a dictonary containing all the necessary information
+    about the trained logistic regression model
+
+    """
     train_x, train_y, test_x, test_y = get_train_test_sets()
     MODEL = model(
-        train_x, train_y, test_x, test_y, num_iterations = num_iterations,
-        learning_rate = learning_rate
+        train_x, train_y, test_x, test_y, num_iterations=num_iterations,
+        learning_rate=learning_rate
     )
     return MODEL
 
+
 if __name__ == '__main__':
+    # Quick & hacky hyperparameter tuning
     num_iterations = 50000
     learning_rate = 0.001
     MODEL = load_iris_and_return_model(
-        num_iterations = 50000, learning_rate = 0.001
+        num_iterations=50000, learning_rate=0.001
     )
     plot_learning_curve(MODEL)

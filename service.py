@@ -1,11 +1,26 @@
 """
-This module doesn't do anything yet
+This module defines the IrisModel class, which trains the logistic regression
+model in packages.logit using gradient descent and can subsequntly serve
+predictions to an endpoint via a Flask.
+
+This module also contains the flask configuration and defines the endpoints
+and their response.
+
+Running this module directly with $ python service.py will instantiate an
+instance of IrisModel, and run the service locally on localhost:8080
+
+Running this model with
+$ export FLASK_APP=service.py
+$ flask run -h ***.*.*.* -p ****
+runs the service using an IP and port of your choice
 
 """
 
 import sys
 import logging
+import numpy as np
 from flask import Flask, Response, jsonify, request
+from packages.logit import load_iris_and_return_model, softmax
 
 
 logging.basicConfig(
@@ -20,18 +35,24 @@ app = Flask(__name__)
 
 class IrisModel:
     def __init__(self, model_id):
-        self.catchphrase = 'you win some you lose some'
-
-    def model(self, input_list):
-        prediction_tuple = (
-            ['virginica', 0.7],
-            ['setosa', 0.2],
-            ['versicolor', 0.1]
+        # In the interest of time, we cheat a little bit and train the
+        # model when the IrisModel class is instantiated
+        # We have also done quick offline hyperparamter tuning for alpha and n
+        self.model_id = model_id
+        self.model = load_iris_and_return_model(
+            num_iterations=50000, learning_rate=0.001
         )
-        return prediction_tuple
 
-    def predict(self, input_list, *args, **kwargs):
-        prediction_tuple = self.model(input_list)
+    def predict(self, X, *args, **kwargs):
+        w = self.model.get('w')
+        b = self.model.get('b')
+        w = w.reshape(X.shape[0], 3)
+        A = softmax(np.dot(w.T, X) + b)
+        prediction_tuple = (
+            ['setosa', A[0, 0]],
+            ['versicolor', A[1, 0]],
+            ['virginica', A[2, 0]]
+        )
         return [
             {
                 "class": p[0],
@@ -51,21 +72,21 @@ def health():
     return Response(status=200)
 
 
-@app.route(f"/api/predict", methods=["POST"])
+@app.route(f"/api/predict", methods=["GET"])
 def predict():
     app.logger.info(f"Prediction endpoint called")
 
-    input_list = [
-        request.args.get('sepal_length'),
-        request.args.get('sepal_width'),
-        request.args.get('petal_length'),
-        request.args.get('petal_width')
-    ]
+    input_array = np.array([[
+        float(request.args.get('sepal_length')),
+        float(request.args.get('sepal_width')),
+        float(request.args.get('petal_length')),
+        float(request.args.get('petal_width'))
+    ]]).T
 
-    app.logger.info(f"input list: {input_list}")
+    app.logger.info(f"input array: {input_array}")
 
     predictions = MODEL.predict(
-        input_list
+        input_array
     )
 
     app.logger.info(f"predictions: {predictions}")
