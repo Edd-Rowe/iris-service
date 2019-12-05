@@ -33,6 +33,7 @@ def test_softmax_gives_expected_value():
 
 
 def test_iris_dataset_loaded_completely():
+    # get_train_test_sets returns arrays of the expected shape
     train_x, train_y, test_x, test_y = logit.get_train_test_sets()
     assert train_x.shape[0] == 4
     assert test_x.shape[0] == 4

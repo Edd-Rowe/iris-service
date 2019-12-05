@@ -92,19 +92,18 @@ def propagate(w, b, X, Y):
     db -- gradient of the loss with respect to b, thus same shape as b
 
     """
-
     m = X.shape[1]
-
     # Forward propagation
     A = softmax(np.dot(w.T, X) + b)
+
     # The cost function for logistic regression - categorical cross entropy
     cost = -(1/m) * (Y*np.log(A) + (1-Y)*np.log(1-A)).sum()
+
     # Backward propagation
     dw = 1/m * np.dot(X, (A - Y).T)
     db = 1/m * (A-Y).sum()
 
-    grads = {"dw": dw,
-             "db": db}
+    grads = {"dw": dw, "db": db}
 
     return grads, cost
 
@@ -190,12 +189,8 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, test_x, test_y):
                 100 - np.mean(np.abs(Y_prediction_test - test_y)) * 100
             )
 
-    params = {"w": w,
-              "b": b}
-
-    grads = {"dw": dw,
-             "db": db}
-
+    params = {"w": w, "b": b}
+    grads = {"dw": dw, "db": db}
     return params, grads, train_accs, test_accs
 
 
@@ -227,7 +222,6 @@ def model(train_x, train_y, test_x, test_y, num_iterations=2000,
     Returns:
     MODEL -- dictionary containing information about the model.
     """
-
     # initialize parameters with zeros
     w, b = initialize_with_zeros(train_x.shape[0], train_y.shape[0])
 
@@ -254,7 +248,6 @@ def model(train_x, train_y, test_x, test_y, num_iterations=2000,
             "train_accs": train_accs,
             "test_accs": test_accs
     }
-
     return MODEL
 
 
@@ -267,7 +260,6 @@ def plot_learning_curve(MODEL):
     values for the learning rate and number of iterations.
 
     """
-
     train_accs = np.squeeze(MODEL['train_accs'])
     test_accs = np.squeeze(MODEL['test_accs'])
     fig, ax = plt.subplots()
