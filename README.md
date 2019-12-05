@@ -60,3 +60,17 @@ The service returns a JSON object with 2 keys: prediction and predictions. The v
     ]
 }
 ```
+
+# Deployment
+
+This repo contains configuration files for Docker & circleci and a manifest for kubernetes.
+If we hooked circleci into this repo, whenever a commit was pushed to master branch, the build-and-deploy workflow defined in .circleci/config.yml would trigger.
+
+This workflow builds a docker image with python 3.7 & installs the dependencies in pipenv. It stores the docker image in a Google Container Registry, which is then deployed on a kubernetes cluster.
+
+None of this actually happens, because I changed a bunch of key variables to dummy variables. I didn't fancy actually deploying this on my company's clusters, and I don't have a personal GCP account. As a result, the docker image, circle integration and kubernetes config have not been tested.
+
+# Shortcuts
+
+This code is certainly production capable, however some shortcuts have been taken in the interests of time (logistic regression from scratch isn't quick!) that I would not normally make with production services.
+
