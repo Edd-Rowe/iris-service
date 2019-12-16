@@ -1,6 +1,6 @@
 # iris-service
 
-This repo contains a REST micro-service that predicts the species of an iris given the lengths and widths of its petals and sepals.
+This repo contains a RESTful micro-service that predicts the species of an iris given the lengths and widths of its petals and sepals.
 
 Prediction is carried out using a logistic regression model implemented 'from scratch' (not using sklearn).
 
