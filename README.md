@@ -6,6 +6,14 @@ Prediction is carried out using a logistic regression model implemented 'from sc
 
 It also contains the exploratory analysis and plotting tools used during the development or the service (these would usually not be checked in, but they are included here for illustration).
 
+This repo is intended to showcase competency in a bunch of data science skills: 
+- Python
+- Machine learning
+- RESTful microservices
+- Deployment
+- Testing
+- Git(hub) & repository structure
+
 # Quickstart
 
 Clone the repo, open a terminal window and navigate to the root directory.
